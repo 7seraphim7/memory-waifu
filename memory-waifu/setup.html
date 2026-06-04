@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置初始状态</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 480px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #0071e3; }
+        button {
+            background: #0071e3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover { background: #0077ed; }
+        .status { margin: 10px 0; padding: 10px; background: #f5f5f7; border-radius: 8px; }
+        .success { color: #34c759; }
+    </style>
+</head>
+<body>
+    <h1>设置初始状态</h1>
+    <div class="status" id="status">准备设置...</div>
+    <button onclick="setState(3)">设置为3天</button>
+    <button onclick="setState(7)">设置为7天</button>
+    <button onclick="setState(14)">设置为14天</button>
+    <button onclick="resetState()">重置</button>
+    <hr>
+    <a href="index.html">→ 前往应用</a>
+
+    <script>
+        // 从 motivation.js 复制的默认状态
+        function getDefaultState() {
+            return {
+                totalPoints: 0,
+                sessionPoints: 0,
+                streak: 0,
+                lastActiveDate: null,
+                lastWeeklyBonus: null,
+                skipCards: 2,
+                level: 1,
+                unlockedItems: [],
+                lockedItems: {}
+            };
+        }
+
+        // 获取今天的日期字符串
+        function todayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        // 获取昨天的日期字符串
+        function yesterdayKey() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        // 连签奖励表
+        const streakRewards = {
+            1: { id: 'wallpaper_01_basic', name: '🌸 初识', rarity: 'common', canSaveAfter: 2 },
+            2: { id: 'wallpaper_02_themed', name: '📚 书房', rarity: 'common', canSaveAfter: 3 },
+            3: { id: 'wallpaper_03_preview', name: '🌙 夜间模式', rarity: 'uncommon', canSaveAfter: 4 },
+            5: { id: 'wallpaper_04_hd', name: '⭐ 星空', rarity: 'rare', canSaveAfter: 5 },
+            7: { id: 'wallpaper_07_animated', name: '💫 流星', rarity: 'epic', canSaveAfter: 7 },
+            10: { id: 'wallpaper_10_dynamic', name: '🌊 涟漪', rarity: 'rare', canSaveAfter: 7 },
+            14: { id: 'character_01_live2d', name: '🎭 初见', rarity: 'legendary', canSaveAfter: 7 },
+            21: { id: 'character_02_alternate', name: '👗 换装', rarity: 'legendary', canSaveAfter: 7 },
+            30: { id: 'character_03_new', name: '🌟 新朋友', rarity: 'legendary', canSaveAfter: 10 },
+            50: { id: 'custom_character_01', name: '🎨 自选角色', rarity: 'mythic', canSaveAfter: 10 }
+        };
+
+        function setState(days) {
+            const state = getDefaultState();
+            state.streak = days;
+            state.totalPoints = days * 100;
+            state.level = Math.floor(days / 7) + 1;
+            state.lastActiveDate = yesterdayKey(); // 昨天活跃，这样今天算连续
+
+            // 解锁对应的奖励
+            for (let d = 1; d <= days; d++) {
+                const reward = streakRewards[d];
+                if (reward) {
+                    state.unlockedItems.push(reward.id);
+                    state.lockedItems[reward.id] = {
+                        status: d < days ? 'saved' : 'unlocked',
+                        canSaveAfter: reward.canSaveAfter,
+                        canSaveFrom: d,
+                        progress: d < days ? reward.canSaveAfter : (days - d)
+                    };
+                }
+            }
+
+            localStorage.setItem('memory_waifu_state', JSON.stringify(state));
+            document.getElementById('status').innerHTML = `<span class="success">✅ 已设置为 ${days} 天连签！</span>`;
+        }
+
+        function resetState() {
+            localStorage.removeItem('memory_waifu_state');
+            indexedDB.deleteDatabase('MemoryWaifuDB');
+            document.getElementById('status').innerHTML = `<span class="success">✅ 已重置！</span>`;
+        }
+
+        // 显示当前状态
+        function showCurrentState() {
+            const saved = localStorage.getItem('memory_waifu_state');
+            if (saved) {
+                const state = JSON.parse(saved);
+                document.getElementById('status').innerHTML = `
+                    当前状态：<br>
+                    🔥 连签：${state.streak} 天<br>
+                    ⭐ 积分：${state.totalPoints}<br>
+                    📈 等级：${state.level}<br>
+                    🎨 已解锁：${Object.keys(state.lockedItems).length} 项
+                `;
+            }
+        }
+
+        showCurrentState();
+    </script>
+</body>
+</html>

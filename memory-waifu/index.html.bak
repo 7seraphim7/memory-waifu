@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#fafafa">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Memory Waifu - 间隔复习</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 首页背景层 -->
+    <div id="home-background" class="home-background"></div>
+    
+    <div id="app">
+        <!-- 顶部状态栏 -->
+        <header class="app-header">
+            <h1 class="app-title">📚 Memory Waifu</h1>
+            <div class="header-right">
+                <span id="streak-badge" class="streak-badge">🔥 0</span>
+            </div>
+        </header>
+
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <!-- 主内容区 -->
+        <main>
+            <!-- 仪表盘 -->
+            <div id="dashboard"></div>
+            
+            <!-- 卡片区域 -->
+            <div id="card-container"></div>
+        </main>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav" id="bottom-nav">
+            <button class="nav-btn active" data-page="home" onclick="app.goHome()">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">首页</span>
+            </button>
+            <button class="nav-btn" data-page="add" onclick="app.showAddCard()">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">添加</span>
+            </button>
+            <button class="nav-btn" data-page="collection" onclick="app.showCollection()">
+                <span class="nav-icon">🎨</span>
+                <span class="nav-label">收藏</span>
+            </button>
+            <button class="nav-btn" data-page="stats" onclick="app.showStats()">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">统计</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- JS 模块 -->
+    <script src="js/spaced-repetition.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/motivation.js"></script>
+    <script src="js/reminder.js"></script>
+    <script src="js/ai-image.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
